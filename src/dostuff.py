@@ -48,6 +48,7 @@ def main():
         "unconfirm": helpUnConfirm0444,
         "unconfirm_part": helpUnConfirmPart,
         "delete": setDeletionFlag,
+        "mrp": runMRP,
     }
 
     try:
@@ -280,10 +281,15 @@ def manuallyAddOperationsAndComponents(plant=None):
         pyautogui.click(x=38, y=314)
 
         # add Operation
-        for x in (lineNumber, None, "MATLCONS", None, "ZP01", "2034"):
-            if x is not None:
-                pyautogui.typewrite(x)
-            pyautogui.press("tab")
+        region = (CO02_TABLE_LEFT,
+                  CO02_TABLE_TOP,
+                  CO02_ITEM_WIDTH_OPERATIONS,
+                  SAP_TABLE_LINE_HEIGHT)
+        if not checkOperationsLine(region):
+            for x in (lineNumber, None, "MATLCONS", None, "ZP01", "2034"):
+                if x is not None:
+                    pyautogui.typewrite(x)
+                pyautogui.press("tab")
         pyautogui.press("f6")
         while not findAtLocation(img.CO02.ComponentOverviewHeader, COMPONENT_HEADER):
             pyautogui.press("enter")
@@ -427,6 +433,40 @@ def setDeletionFlag():
             pyautogui.keyUp("alt")
             time.sleep(.5)
             pyautogui.hotkey("ctrl", "s")
+
+
+# arg: "mrp"
+def runMRP():
+    PROJECT = (196, 160)
+    WBS = (196, 182)
+    MRP_MAIN_PAGE = (20, 150, 90, 45)
+    SUCCESS_COLORS = (300, 145, 100, 95)
+
+    PROJECT_RE = re.compile("^[a-zA-Z]-[0-9]{7}$")
+    WBS_RE = re.compile("^[a-zA-Z]-[0-9]{7}-[0-9]{5}$")
+
+    homePath = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(homePath, "orders.txt"), "r") as f:
+        orders = [x.replace("\n", "") for x in f.readlines()]
+
+    with tqdm.tqdm(orders) as progress:
+        for project_or_wbs in progress:
+            loopFunc(findAtLocation, img.MB51.MainPageKey, MRP_MAIN_PAGE)
+            # enter Project or WBS
+            if PROJECT_RE.match(project_or_wbs):
+                pyautogui.click(*PROJECT)
+            elif WBS_RE.match(project_or_wbs):
+                pyautogui.click(*WBS)
+            else:
+                continue
+
+            pyautogui.typewrite(project_or_wbs)
+            pyautogui.press("enter")
+            time.sleep(.5)
+            pyautogui.press("enter")
+
+            loopFunc(findAtLocation, img.MB51.SuccessColors, SUCCESS_COLORS)
+            pyautogui.press("f3")
 
 
 def co02AddMaterialLineCsv():
