@@ -70,6 +70,7 @@ def main():
         print("Closing loop.")
 
 
+# arg: "check"
 def checkWinShuttleOrManual():
     CAPTURE_REGIONS = []
     def region(x): return (CO02_TABLE_LEFT, x,
@@ -113,6 +114,7 @@ def checkOperationsLine(region):
     return None
 
 
+# arg: "remove"
 def helpRemoveLines():
     def region(x): return (CO02_TABLE_LEFT, x,
                            CO02_ITEM_WIDTH_OPERATIONS, SAP_TABLE_LINE_HEIGHT)
@@ -205,6 +207,8 @@ def helpRemoveLines():
                 break
 
 
+# arg: "manual"
+# arg: "add"
 def manuallyAddOperationsAndComponents(plant=None):
     if plant is None:
         plant = input("Plant: ")
@@ -234,7 +238,16 @@ def manuallyAddOperationsAndComponents(plant=None):
     deleted0444 = list()
     order = None
     wb = xlwings.books.active
-    for x in wb.sheets["Sheet1"].range("A2:D2").expand('down').value:
+
+    starting_row = 2
+    if len(sys.argv) > 2:
+        try:
+            starting_row = int(sys.argv[2])
+        except:
+            pass
+
+    rng = "A{}:D{}".format(starting_row, starting_row)
+    for x in wb.sheets["Sheet1"].range(rng).expand('down').value:
         if x[3] and WINSHUTTLE_SUCCESS_REGEX.match(x[3]):
             continue
 
@@ -294,6 +307,7 @@ def manuallyAddOperationsAndComponents(plant=None):
                 break
 
 
+# arg: "unconfirm"
 def helpUnConfirm0444(query0444=True):
     INITIAL_SCREEN_HEADER = (27, 83, 455, 18)
     INITIAL_SCREEN_ORDER = (140, 271)
@@ -347,6 +361,7 @@ def helpUnConfirm0444(query0444=True):
             cancel_conf(order)
 
 
+# arg: "unconfirm_part"
 def helpUnConfirmPart():
     INITIAL_SCREEN_HEADER = (27, 83, 455, 18)
     INITIAL_SCREEN_ORDER = (140, 271)
@@ -384,6 +399,7 @@ def helpUnConfirmPart():
             cancel_conf(order)
 
 
+# arg: "delete"
 def setDeletionFlag():
     INITIAL_SCREEN_HEADER = (25, 80, 350, 25)
     INITIAL_SCREEN_ORDER = (168, 204)
