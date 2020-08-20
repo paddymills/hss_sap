@@ -18,7 +18,7 @@ index = SimpleNamespace()
 
 def main():
     sheet = xlwings.books.active.sheets.active
-    # find order of Part, Qty, WBS, Order#
+    # find order of Part, Qty, WBS, Order#, Plant
     if sheet.range("B1").value == "Material":  # COGI w/o changes
         indexOrder = (1, 6, 8, 9, 3)
     elif sheet.range("A1").value == "Material":  # COGI w/ status column removed
@@ -28,7 +28,7 @@ def main():
         indexOrder = (4, 1, 11, 12, 6)
     elif sheet.range("B1").value == "Material Number":  # COHV
         if sheet.range("C1").value == "Material description":  # COHV CNF
-            indexOrder = (1, 6, 3, 0, 7)
+            indexOrder = (1, 6, 3, 0, 8)
         else:
             indexOrder = (1, 2, 3, 0, 7)
     else:
