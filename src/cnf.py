@@ -20,23 +20,23 @@ def main():
     sheet = xlwings.books.active.sheets.active
     # find order of Part, Qty, WBS, Order#
     if sheet.range("B1").value == "Material":  # COGI w/o changes
-        indexOrder = (1, 6, 8, 9)
+        indexOrder = (1, 6, 8, 9, 3)
     elif sheet.range("A1").value == "Material":  # COGI w/ status column removed
-        indexOrder = (0, 5, 7, 8)
+        indexOrder = (0, 5, 7, 8, 2)
     # COGI w/ 4 columns inserted at beginning
     elif sheet.range("E1").value == "Material":
-        indexOrder = (4, 1, 11, 12)
+        indexOrder = (4, 1, 11, 12, 6)
     elif sheet.range("B1").value == "Material Number":  # COHV
         if sheet.range("C1").value == "Material description":  # COHV CNF
-            indexOrder = (1, 6, 3, 0)
+            indexOrder = (1, 6, 3, 0, 7)
         else:
-            indexOrder = (1, 2, 3, 0)
+            indexOrder = (1, 2, 3, 0, 7)
     else:
         print("header format not matched")
         exit()
         # indexOrder = (0,2,3,0)
 
-    index.PART, index.QTY, index.WBS, index.ORDER = indexOrder
+    index.PART, index.QTY, index.WBS, index.ORDER, index.PLANT = indexOrder
 
     if len(sys.argv) > 1 and sys.argv[1] == 'nopip':
         skip_pip = True
@@ -103,7 +103,8 @@ def dumpXlWinShuttles(data):
 
 def createCnfFile(data):
     def uniqueNthItems(ls): return np.unique(np.take(ls, [index.PART], axis=1))
-    data_PartQtyWbs = itemgetter(index.PART, index.QTY, index.WBS)
+    data_PartQtyWbsPlant = itemgetter(
+        index.PART, index.QTY, index.WBS, index.PLANT)
 
     def location_handler(loc, plant):
         RAW_LOCS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'S', 'TRLR']
@@ -139,9 +140,11 @@ def createCnfFile(data):
 
     # group items by part and wbs
     dataSubtotal = defaultdict(lambda: defaultdict(int))
+    dataPlants = dict()
     for x in data:
-        part, qty, wbs = data_PartQtyWbs(x)
+        part, qty, wbs, plant = data_PartQtyWbsPlant(x)
         dataSubtotal[part][wbs] += int(qty)
+        dataPlants[part] = plant
 
     # create output file
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -159,6 +162,7 @@ def createCnfFile(data):
                 d[2] = wbs
                 d[4] = str(int(qty))
                 d[8] = str(round(area_ea * qty, 3))
+                d[11] = dataPlants[part]
                 cnf_file.write("\t".join(d))
 
 
