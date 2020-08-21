@@ -84,13 +84,11 @@ def checkWinShuttleOrManual():
     OPERATIONS_HEADER = (75, 82, 405, 20)
     BACK_BUTTON = (282, 45, 15, 15)
 
-    homePath = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(homePath, "orders.txt"), "r") as f:
-        data = [x.replace("\n", "") for x in f.readlines()]
+    orders = read_sort_min_file("orders.txt")
 
-    iterations = len(data)
+    iterations = len(orders)
     with Pool() as p:
-        for i, order in enumerate(data, start=1):
+        for i, order in enumerate(orders, start=1):
             loopFunc(findAtLocation, img.CO02.InitialScreenHeader,
                      INITIAL_SCREEN_HEADER)
             pyautogui.click(*INITIAL_SCREEN_ORDER)
@@ -135,12 +133,10 @@ def helpRemoveLines():
 
     AVAILABLE_PROCESSES = os.cpu_count()
 
-    homePath = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(homePath, "orders.txt"), "r") as f:
-        data = [x.replace("\n", "") for x in f.readlines()]
+    orders = read_sort_min_file("orders.txt")
 
-    total = len(data)
-    for i, order in enumerate(data, start=1):
+    total = len(orders)
+    for i, order in enumerate(orders, start=1):
         loopFunc(findAtLocation, img.CO02.InitialScreenHeader,
                  INITIAL_SCREEN_HEADER)
         pyautogui.click(*INITIAL_SCREEN_ORDER)
@@ -324,9 +320,7 @@ def helpUnConfirm0444(query0444=True):
 
     TODAY = date.today().strftime('%m/%d/%Y')
 
-    homePath = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(homePath, "orders.txt"), "r") as f:
-        orders = [x.replace("\n", "") for x in f.readlines()]
+    orders = read_sort_min_file("orders.txt")
 
     def cancel_conf(order):
         loopFunc(findAtLocation, img.CO13.InitialScreenHeader,
@@ -377,9 +371,7 @@ def helpUnConfirmPart():
 
     TODAY = date.today().strftime('%m/%d/%Y')
 
-    homePath = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(homePath, "orders.txt"), "r") as f:
-        orders = [x.replace("\n", "") for x in f.readlines()]
+    orders = read_sort_min_file("orders.txt")
 
     def cancel_conf(order):
         loopFunc(findAtLocation, img.CO13.InitialScreenHeader,
@@ -410,9 +402,7 @@ def setDeletionFlag():
     INITIAL_SCREEN_HEADER = (25, 80, 350, 25)
     INITIAL_SCREEN_ORDER = (168, 204)
 
-    homePath = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(homePath, "orders.txt"), "r") as f:
-        orders = [x.replace("\n", "") for x in f.readlines()]
+    orders = read_sort_min_file("orders.txt")
 
     with tqdm.tqdm(orders) as progress:
         for order in progress:
@@ -445,11 +435,9 @@ def runMRP():
     PROJECT_RE = re.compile("^[a-zA-Z]-[0-9]{7}$")
     WBS_RE = re.compile("^[a-zA-Z]-[0-9]{7}-[0-9]{5}$")
 
-    homePath = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(homePath, "orders.txt"), "r") as f:
-        orders = [x.replace("\n", "") for x in f.readlines()]
+    data = read_sort_min_file("orders.txt")
 
-    with tqdm.tqdm(orders) as progress:
+    with tqdm.tqdm(data) as progress:
         for project_or_wbs in progress:
             loopFunc(findAtLocation, img.MB51.MainPageKey, MRP_MAIN_PAGE)
             # enter Project or WBS
@@ -602,6 +590,23 @@ def captureWorker(workerID, inputQueue, outputQueue, terminateQueue):
         pass
 
     terminateQueue.put(workerID)
+
+
+def read_sort_min_file(filename):
+    homePath = os.path.dirname(os.path.realpath(__file__))
+
+    # read file
+    with open(os.path.join(homePath, filename), "r") as f:
+        items = f.read().split("\n")
+
+    # remove duplicates and sort
+    orderd = sorted(set(items))
+
+    # write sorted, minified list back to file
+    with open(os.path.join(homePath, filename), "w") as f:
+        f.writelines(orderd)
+
+    return orderd
 
 
 if __name__ == '__main__':

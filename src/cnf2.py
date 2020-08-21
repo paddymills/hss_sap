@@ -44,6 +44,7 @@ def determine_tr():
     s.range("B:B").column_width = 0.1
     s.range("G:M").column_width = 0.1
     s.range("P:P").color = (0, 0, 0)
+    wb.save(r"C:\temp\migo_tr.xlsx")  # masks save error on close
 
 
 def determine_tr_for_parts(parts, inventory):
