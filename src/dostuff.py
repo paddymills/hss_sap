@@ -435,9 +435,9 @@ def runMRP():
     PROJECT_RE = re.compile("^[a-zA-Z]-[0-9]{7}$")
     WBS_RE = re.compile("^[a-zA-Z]-[0-9]{7}-[0-9]{5}$")
 
-    data = read_sort_min_file("orders.txt")
+    mrp_items = read_sort_min_file("mrp.txt")
 
-    with tqdm.tqdm(data) as progress:
+    with tqdm.tqdm(mrp_items) as progress:
         for project_or_wbs in progress:
             loopFunc(findAtLocation, img.MB51.MainPageKey, MRP_MAIN_PAGE)
             # enter Project or WBS
