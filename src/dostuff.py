@@ -601,14 +601,12 @@ def read_sort_min_file(filename):
 
     # remove duplicates and sort
     orderd = sorted(set(items))
+    if '' in orderd:
+        orderd.remove('')
 
     # write sorted, minified list back to file
     with open(os.path.join(homePath, filename), "w") as f:
         f.write("\n".join(orderd))
-
-    for nothing in ('', None):
-        if nothing in orderd:
-            orderd.remove(nothing)
 
     return orderd
 
