@@ -604,7 +604,7 @@ def read_sort_min_file(filename):
 
     # write sorted, minified list back to file
     with open(os.path.join(homePath, filename), "w") as f:
-        f.writelines(orderd)
+        f.write("\n".join(orderd))
 
     return orderd
 
