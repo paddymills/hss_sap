@@ -107,10 +107,7 @@ def createCnfFile(data):
         index.PART, index.QTY, index.WBS, index.PLANT)
 
     def location_handler(loc, plant):
-        RAW_LOCS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'S', 'TRLR']
         if not loc:
-            return 'RAW'
-        elif loc[0] in RAW_LOCS or loc in RAW_LOCS:
             return 'RAW'
         elif plant == 'HS02':
             return 'RAW'
