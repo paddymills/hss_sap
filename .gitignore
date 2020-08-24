@@ -16,3 +16,4 @@ venv.bak/
 orders.txt
 mrp.txt
 *.ready
+*.xls*
