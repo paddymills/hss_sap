@@ -12,26 +12,42 @@ def main():
 
 
 def determine_tr():
+    cogi = defaultdict(list)
+    mb52 = defaultdict(list)
+
     for wb in xlwings.books:
         for s in wb.sheets:
             data = parsers.parse_sheet(s)
+
+            ##############################################
+            #                    COGI                    #
+            ##############################################
             if s.range("A1").value == 'Processing Status':
-                cogi = defaultdict(list)
                 for row in data:
                     cogi[row.matl].append(row)
+
+            ##############################################
+            #                    MB52                    #
+            ##############################################
             elif s.range("A1").value == 'Material Number':
-                mb52 = defaultdict(list)
                 for row in data:
                     mb52[row.matl].append(row)
 
     tr = list()
-    for part_key, part_items in cogi.items():
-        for inv_key, inv_items in mb52.items():
-            if part_key == inv_key:
-                for res in determine_tr_for_parts(part_items, inv_items):
-                    if res:
-                        tr.append(res)
+    for k in cogi.keys():
+        for res in determine_tr_for_parts(cogi[k], mb52[k]):
+            if res:
+                tr.append(res)
 
+    # ^^^ rewritten above ^^^
+    # for part_key, part_items in cogi.items():
+    #     for inv_key, inv_items in mb52.items():
+    #         if part_key == inv_key:
+    #             for res in determine_tr_for_parts(part_items, inv_items):
+    #                 if res:
+    #                     tr.append(res)
+
+    # insert blank row every TR_ROWS
     index = TR_ROWS
     while index < len(tr):
         tr.insert(index, [None] * TR_COLS)

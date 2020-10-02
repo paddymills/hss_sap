@@ -15,6 +15,13 @@ from collections import defaultdict
 
 index = SimpleNamespace()
 
+stock_locs = {
+    "50/50W-0006": "I1",
+    "50/50W-0010": "I6",
+    "50/50W-0012": "I4",
+    "50/50W-0014": "I8",
+}
+
 
 def main():
     sheet = xlwings.books.active.sheets.active
@@ -106,11 +113,15 @@ def createCnfFile(data):
     data_PartQtyWbsPlant = itemgetter(
         index.PART, index.QTY, index.WBS, index.PLANT)
 
-    def location_handler(loc, plant):
+    def location_handler(loc, plant, mm):
         if not loc:
             return 'RAW'
         elif plant == 'HS02':
             return 'RAW'
+
+        if mm in stock_locs.keys():
+            loc = stock_locs[mm]
+
         return loc
 
     dirs = [
@@ -154,7 +165,7 @@ def createCnfFile(data):
 
             d = prod_data[part]
             area_ea = float(d[8]) / float(d[4])
-            d[10] = location_handler(d[10], d[11])
+            d[10] = location_handler(d[10], d[11], d[6])
             for wbs, qty in val.items():
                 d[2] = wbs
                 d[4] = str(int(qty))

@@ -17,3 +17,7 @@ orders.txt
 mrp.txt
 *.ready
 *.xls*
+
+# OS files
+~*
+*.lnk
