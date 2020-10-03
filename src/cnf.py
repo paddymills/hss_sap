@@ -139,8 +139,8 @@ def createCnfFile(data):
     cnf_parts = list()
     faro_map = dict()
     for part in tqdm.tqdm(uniqueNthItems(data), desc="Adding FARO names"):
-        job, part = part.split("-", 1)
-        faro_name = "{}-{}".format(job[-4:], part)
+        job, mark = part.split("-", 1)
+        faro_name = "{}-{}".format(job[-4:], mark)
         cnf_parts += [part, faro_name]
         faro_map[faro_name] = part
 
@@ -156,7 +156,11 @@ def createCnfFile(data):
         for result in Pool().imap(fileWorker, files):
             progress.update(1)
             for x in result:
-                trials = [x[0], x[0][:x[0].find("-", 5)], ]
+                trials = [
+                    x[0],
+                    x[0][:x[0].find("-", 5)],
+                    x[0][:x[0].find("-", 9)],
+                ]
                 try:
                     trials.append("{0}-{3}".format(*x[0].split("-")))
                 except IndexError:
@@ -189,6 +193,7 @@ def createCnfFile(data):
             area_ea = float(d[8]) / float(d[4])
             d[10] = location_handler(d[10], d[11], d[6])
             for wbs, qty in val.items():
+                d[0] = part
                 d[2] = wbs
                 d[4] = str(int(qty))
                 d[8] = str(round(area_ea * qty, 3))
