@@ -15,6 +15,11 @@ from collections import defaultdict
 
 index = SimpleNamespace()
 
+# if P1_DUMP is not null,
+# all plant 1 locations will be set to to dumping ground
+P1_DUMP = "T19"
+P1_LOCS = [["{}{}".format(l, n) for n in range(1, 20)] for l in "HIJKLMNT"]
+
 stock_locs = {
     "50/50W-0006": "T19",
     "50/50W-0008": "T19",
@@ -121,7 +126,9 @@ def createCnfFile(data):
         elif plant == 'HS02':
             return 'RAW'
 
-        if mm in stock_locs.keys():
+        if plant == 'HS01' and P1_DUMP and loc in P1_LOCS:
+            loc = P1_DUMP
+        elif mm in stock_locs.keys():
             loc = stock_locs[mm]
 
         return loc
@@ -129,7 +136,7 @@ def createCnfFile(data):
     dirs = [
         r"\\hssieng\SNData\SimTrans\SAP Data Files\Processed",
         r"\\hssieng\SNData\SimTrans\SAP Data Files\deleted files",
-        r"\\hssieng\SNData\SimTrans\SAP Data Files\old deleted files",
+        # r"\\hssieng\SNData\SimTrans\SAP Data Files\old deleted files",
     ]
 
     cnf_parts = uniqueNthItems(data)
