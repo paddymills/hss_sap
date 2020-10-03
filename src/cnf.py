@@ -136,10 +136,13 @@ def createCnfFile(data):
         # r"\\hssieng\SNData\SimTrans\SAP Data Files\old deleted files",
     ]
 
-    cnf_parts = uniqueNthItems(data)
-    for part in cnf_parts:
+    cnf_parts = list()
+    faro_map = dict()
+    for part in tqdm.tqdm(uniqueNthItems(data), desc="Adding FARO names"):
         job, part = part.split("-", 1)
-        cnf_parts.append("{}-{}".format(job[-4:], part))
+        faro_name = "{}-{}".format(job[-4:], part)
+        cnf_parts += [part, faro_name]
+        faro_map[faro_name] = part
 
     prod_data = dict()
 
@@ -161,6 +164,8 @@ def createCnfFile(data):
 
                 for t in trials:
                     if t in cnf_parts:
+                        if t in faro_map.keys():
+                            t = faro_map[t]
                         prod_data[t] = x
 
     # group items by part and wbs

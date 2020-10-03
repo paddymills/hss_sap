@@ -110,7 +110,7 @@ def checkOperationsLine(region):
     y, text = captureRow(region)
     if "MATLCONS" in text.upper():
         return True
-    return None
+    return False
 
 
 # arg: "remove"
@@ -281,7 +281,7 @@ def manuallyAddOperationsAndComponents(plant=None):
                   CO02_TABLE_TOP,
                   CO02_ITEM_WIDTH_OPERATIONS,
                   SAP_TABLE_LINE_HEIGHT)
-        if not checkOperationsLine(region):
+        if not checkOperationsLine(region) or not pyautogui.pixelMatchesColor(290, 500, ACTIVE_LINE_RGB):
             for x in (lineNumber, None, "MATLCONS", None, "ZP01", "2034"):
                 if x is not None:
                     pyautogui.typewrite(x)
