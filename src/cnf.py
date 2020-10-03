@@ -52,10 +52,7 @@ def main():
 
     index.PART, index.QTY, index.WBS, index.ORDER, index.PLANT = indexOrder
 
-    if len(sys.argv) > 1 and sys.argv[1] == 'nopip':
-        skip_pip = True
-    else:
-        skip_pip = False
+    skip_pip = (len(sys.argv) > 1 and sys.argv[1] == 'nopip')
 
     end = sheet.range((2, index.PART+1)).expand().last_cell
     data = sheet.range((2, 1), end).options(ndim=2).value
@@ -140,6 +137,10 @@ def createCnfFile(data):
     ]
 
     cnf_parts = uniqueNthItems(data)
+    for part in cnf_parts:
+        job, part = part.split("-", 1)
+        cnf_parts.append("{}-{}".format(job[-4:], part))
+
     prod_data = dict()
 
     # get data from SAP Data Files
@@ -152,8 +153,15 @@ def createCnfFile(data):
         for result in Pool().imap(fileWorker, files):
             progress.update(1)
             for x in result:
-                if x[0] in cnf_parts:
-                    prod_data[x[0]] = x
+                trials = [x[0], x[0][:x[0].find("-", 5)], ]
+                try:
+                    trials.append("{0}-{3}".format(*x[0].split("-")))
+                except IndexError:
+                    pass
+
+                for t in trials:
+                    if t in cnf_parts:
+                        prod_data[t] = x
 
     # group items by part and wbs
     dataSubtotal = defaultdict(lambda: defaultdict(int))
