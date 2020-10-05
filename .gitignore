@@ -13,10 +13,10 @@ env.bak/
 venv.bak/
 
 # input files
-orders.txt
-mrp.txt
+*.txt
 *.ready
 *.xls*
+*.csv
 
 # OS files
 ~*
