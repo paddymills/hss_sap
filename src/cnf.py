@@ -12,13 +12,14 @@ import tqdm
 from operator import itemgetter
 from types import SimpleNamespace
 from collections import defaultdict
+from itertools import product
 
 index = SimpleNamespace()
 
 # if P1_DUMP is not null,
 # all plant 1 locations will be set to to dumping ground
 P1_DUMP = "T19"
-P1_LOCS = [["{}{}".format(l, n) for n in range(1, 20)] for l in "HIJKLMNT"]
+P1_LOCS = ["{}{}".format(*x) for x in product("HIJKLMNT", range(1, 20))]
 
 stock_locs = {
     "50/50W-0006": "T19",
