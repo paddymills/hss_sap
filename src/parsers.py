@@ -2,6 +2,8 @@ import xlwings
 import os
 
 from types import SimpleNamespace
+from tqdm import tqdm
+from multiprocessing import Pool
 
 aliases = SimpleNamespace()
 aliases.matl = ("Material", "Material Number")
@@ -73,7 +75,7 @@ def get_cnf_file_rows(parts):
         return result
 
     prod_data = list()
-    with tqdm.tqdm(desc="Fetching Data") as progress:
+    with tqdm(desc="Fetching Data") as progress:
         for result in Pool().imap(fileWorker, files()):
             progress.update(1)
             for res in result:

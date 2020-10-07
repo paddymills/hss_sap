@@ -3,7 +3,7 @@ import xlwings
 
 from collections import defaultdict
 
-TR_COLS = 17
+TR_COLS = 19
 TR_ROWS = 25
 
 
@@ -57,44 +57,51 @@ def determine_tr():
     s = wb.sheets[0]
     s.range("A1").value = tr
     s.autofit('c')
-    s.range("B:B").column_width = 0.1
-    s.range("G:M").column_width = 0.1
-    s.range("P:P").color = (0, 0, 0)
+    s.range("D:D").column_width = 0.1
+    s.range("I:N").column_width = 0.1
+    s.range("R:R").color = (0, 0, 0)
     wb.save(r"C:\temp\migo_tr.xlsx")  # masks save error on close
 
 
 def determine_tr_for_parts(parts, inventory):
     keep_wbs = [p.wbs for p in parts]
-    can_move = [(i.wbs, i.qty) for i in inventory if i.wbs not in keep_wbs]
+    can_move = [(i.wbs, i.qty, i.plant)
+                for i in inventory if i.wbs not in keep_wbs]
 
     tr = list()  # (from, to, qty)
     for p in parts:
         for i in inventory:
-            if i.wbs == p.wbs:
+            if i.wbs == p.wbs and i.plant == p.plant:
                 p.qty -= i.qty
 
         while p.qty > 0 and can_move:
-            wbs, qty = can_move.pop()
+            wbs, qty, plant = can_move.pop()
             if qty > p.qty:
-                can_move.append((wbs, qty - p.qty))
+                can_move.append((wbs, qty - p.qty, plant))
                 qty = p.qty
-            tr.append(tr_format(p, wbs, qty))
+            tr.append(tr_format(p, wbs, qty, plant))
             p.qty -= qty
 
     return tr
 
 
-def tr_format(part, from_wbs, qty):
+def tr_format(part, from_wbs, qty, plant):
 
     row = [None] * TR_COLS
-    row[0] = part.matl
-    row[2] = part.plant
-    row[3] = "PROD"
-    row[4] = qty
-    row[5] = "EA"
-    row[13] = "PROD"
-    row[14] = part.wbs
-    row[16] = from_wbs
+    if part.plant == plant:
+        row[0] = "311"
+    else:
+        row[0] = "301"
+    row[1] = "Q"
+    row[2] = part.matl
+    row[4] = plant
+    row[5] = "PROD"
+    row[6] = qty
+    row[7] = "EA"
+    row[14] = part.plant
+    row[15] = "PROD"
+    row[16] = part.wbs
+    row[18] = from_wbs
 
     return row
 
