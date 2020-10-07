@@ -35,7 +35,7 @@ def main():
     sheet = xlwings.books.active.sheets.active
     # find order of Part, Qty, WBS, Order#, Plant
     if sheet.range("B1").value == "Material":  # COGI w/o changes
-        indexOrder = (1, 6, 8, 9, 3)
+        indexOrder = (1, 2, 6, 0, 5)
     elif sheet.range("A1").value == "Material":  # COGI w/ status column removed
         indexOrder = (0, 5, 7, 8, 2)
     # COGI w/ 4 columns inserted at beginning
