@@ -7,7 +7,9 @@ from multiprocessing import Pool
 
 aliases = SimpleNamespace()
 aliases.matl = ("Material", "Material Number")
-aliases.qty = ("Qty in unit of entry", "Unrestricted")
+aliases.part = aliases.matl
+aliases.mark = aliases.matl
+aliases.qty = ("Qty in unit of entry", "Unrestricted", "Order quantity (GMEIN)")
 aliases.loc = ("Storage Location")
 aliases.wbs = ("WBS Element", "Special stock number")
 aliases.plant = ("Plant")
@@ -50,36 +52,43 @@ def parse_sheet(sheet=xlwings.books.active.sheets.active):
         yield parse_row(row, header)
 
 
-def get_cnf_file_rows(parts):
+def get_cnf_file_rows(parts, processed_only=False):
 
     part = SimpleNamespace(matl=0, qty=4, wbs=2, plant=11)
-    matl = SimpleNamespace(matl=6, qty=8, loc=10, wbs=7, plant=11)
+    # matl = SimpleNamespace(matl=6, qty=8, loc=10, wbs=7, plant=11)
 
-    def files():
-        dirs = [
-            r"\\hssieng\SNData\SimTrans\SAP Data Files\Processed",
+    dirs = [
+        r"\\hssieng\SNData\SimTrans\SAP Data Files\Processed",
+    ]
+
+    if not processed_only:
+        dirs += [
             r"\\hssieng\SNData\SimTrans\SAP Data Files\deleted files",
             r"\\hssieng\SNData\SimTrans\SAP Data Files\old deleted files",
         ]
 
+    def files():
         # get data from SAP Data Files
         for d in dirs:
             for f in os.listdir(d):
                 yield os.path.join(d, f)
 
-    def fileWorker(f):
-        result = list()
-        with open(f, "r") as prod_file:
-            for line in prod_file.readlines():
-                result.append(line.upper().split("\t"))
-        return result
-
     prod_data = list()
-    with tqdm(desc="Fetching Data") as progress:
-        for result in Pool().imap(fileWorker, files()):
-            progress.update(1)
-            for res in result:
-                if res[part.matl] in parts:
-                    prod_data[res[part.matl]] = x
+    num_files = sum([len(os.listdir(x)) for x in dirs])
+    with tqdm(files(), desc="Fetching Data", total=num_files) as pbar:
+        for processed_file in Pool().imap(file_worker, files()):
+            pbar.update()
+            for line in processed_file:
+                if line[part.matl] in parts:
+                    prod_data.append(line)
 
     return prod_data
+
+
+def file_worker(f):
+    result = list()
+    with open(f, "r") as prod_file:
+        for line in prod_file.readlines():
+            result.append(line.upper().split("\t"))
+
+    return result
