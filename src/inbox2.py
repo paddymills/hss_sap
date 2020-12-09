@@ -63,33 +63,31 @@ def getData():
         init = SimpleNamespace()
         init.rows = ['Material', 'Wbs', 'Plant', 'Qty']
 
-        locate = pyautogui.locateOnScreen
-
         # if container tab is not selected
         try:
-            x, y = pyautogui.locateOnScreen(r"inboxImg\ContainerUnselected.PNG", grayscale=True)
+            x, y = pyautogui.locateCenterOnScreen(r"inboxImg\ContainerUnselected.PNG", grayscale=True, confidence=0.75)
             pyautogui.click(x, y)
-        except pyautogui.ImageNotFoundException:
-            pass
+        except TypeError:
+            assert pyautogui.locateOnScreen(r"inboxImg\ContainerSelected.PNG", grayscale=True) is not None
 
         # expand horizontal divider up so that values all show when expanded
-        x, y = pyautogui.locateOnScreen(r"inboxImg\HorizontalDivider.PNG", grayscale=True)
+        x, y = pyautogui.locateCenterOnScreen(r"inboxImg\HorizontalDivider.PNG", grayscale=True)
         if y > 400:
             pyautogui.moveTo(x, y)
             pyautogui.dragTo(x, 400, button='left')
-        
-        # get column start x-position
-        x, y, w, h = findOnScreen(r"inboxImg\ValuesHeader.PNG", center=False)
-        init.col_start = x + 5
 
         # find input data expand button
-        x, y, w, h = findOnScreen(r"inboxImg\SigmanestInputData.PNG", center=False)
+        x, y, w, h = pyautogui.locateOnScreen(r"inboxImg\SigmanestInputData.PNG", grayscale=True, confidence=0.75)
         init.input_data_expand = dict(x=x + 5, y=y + 10)
 
         pyautogui.click(**init.input_data_expand)
+        
+        # get column start x-position
+        x, y, w, h = pyautogui.locateOnScreen(r"inboxImg\ValuesHeader.PNG", grayscale=True, confidence=0.75)
+        init.col_start = x + 5
 
         for i, r in enumerate(init.rows):
-            x, y, w, h = findOnScreen("inboxImg\\InputData{}.PNG".format(r), center=False)
+            x, y, w, h = pyautogui.locateOnScreen("inboxImg\\InputData{}.PNG".format(r), grayscale=True, confidence=0.75)
             init.rows[i] = (y, h)
 
         return init
@@ -102,6 +100,7 @@ def getData():
 
         # wait until log screen
         findOnScreen(r"inboxImg\WorkflowLogHeader.PNG")
+        time.sleep(1)
         
         if not cfg:
             cfg = first_time_setup()
@@ -191,7 +190,10 @@ def findOnScreen(picture, region=None, center=True):
 
     while True:
         try:
-            return locate(picture, grayscale=True)
+            res = locate(picture, grayscale=True)
+
+            if res:
+                return res
         except pyautogui.ImageNotFoundException:
             pass
 
@@ -203,29 +205,22 @@ def captureRow(region):
     return pytesseract.image_to_string(capture, config="--oem 3 --psm 6")
 
 
-def testLoc():
-    picture = r"inboxImg\LineText.PNG"
-    region = LINE_ITEM_REGION
-    foundAt = (0, 0, 0, 0)
+def testLoc(img):
+    loc = pyautogui.locateCenterOnScreen(img, grayscale=True)
+    print(loc)
 
-    # original = numpy.array(Image.open(picture))
-    # while 1:
-    #     current = numpy.array(pyautogui.screenshot(region=region))
-    #     if numpy.max(numpy.abs(original - current)) == 0:
-    #         break
+    if loc:
+        pyautogui.moveTo(*loc)
 
-    #     _region = pyautogui.locateOnScreen(picture)
-    #     if foundAt != _region:
-    #         foundAt = _region
-    #         print(f"x:{region[0] - foundAt[0]} y:{region[1] - foundAt[1]}")
-
-    pyautogui.moveTo(EXPAND_INPUT_DATA_CLICK)
-
-    print("located")
+        print("located")
 
 
 if __name__ == '__main__':
     main()
+
+    # time.sleep(2)
+    # testLoc(r"inboxImg\ContainerUnselected.PNG")
+    # testLoc(r"inboxImg\WorkflowLogHeader.PNG")
 
     # matl = captureRow(MATL_VALUE_REGION)
     # wbs = captureRow(WBS_VALUE_REGION)
