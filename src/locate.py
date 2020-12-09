@@ -31,7 +31,7 @@ def takePictureCoordAndSize(x1, y1, wid, height, name="image.PNG"):
 
 
 if __name__ == '__main__':
-    # findCoord()
+    findCoord()
 
     time.sleep(5)
     takePictureTwoCoord(20, 150, 110, 195)

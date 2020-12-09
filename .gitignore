@@ -17,6 +17,7 @@ venv.bak/
 *.ready
 *.xls*
 *.csv
+temp/
 
 # OS files
 ~*
