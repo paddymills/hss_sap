@@ -125,17 +125,14 @@ def getData():
 
         items = ",".join((matl, wbs, plant, qty))
         with open("inboxErrors.csv", "a") as err:
-            err.write(items)
+            err.write(items + "\n")
         print(items)
-        break
 
         pyautogui.press("f3")
         findOnScreen(r"inboxImg\InboxHeader.PNG")
 
-
-        original = numpy.array(Image.open(r"inboxImg\endOfList.PNG"))
-        current = numpy.array(pyautogui.screenshot(region=END_OF_LIST))
-        if numpy.max(numpy.abs(original - current)) == 0:
+        # check if last item (scrollbar at the bottom)
+        if pyautogui.locateOnScreen(r"inboxImg\endOfList.PNG", grayscale=True):
             break
 
         pyautogui.press("down")
@@ -154,15 +151,20 @@ def thread_worker(index, x, img):
 def cleanUpInput(input, doNotRemove=[], cleanType=None):
     input = input.strip()
 
-    REMOVE = ["/", "|", "_", ",", ".", "'", "�", "‘"]
+    REMOVE = ["/", "|", "_", ",", ".", "'", "�", "‘", "\\", "°", "("]
+    REPLACE = [("$", "S"), ("§", "S"), ("S1", "S-1"), ("D1", "D-1")]
     for x in REMOVE:
         if x not in doNotRemove:
             input = input.replace(x, "")
 
-    if cleanType == "job":
-        return input[:8] + input[input.find("-"):]
-    elif cleanType == "wbs":
-        return input.replace("\\", "").replace("s1", "S-1").replace("S1", "S-1")
+    input = input.upper()
+    for f, r in REPLACE:
+        input = input.replace(f, r)
+
+    if input == '4501':
+        input = 'HS01'
+    elif input == '4502':
+        input = 'HS02'
 
     return input
 
