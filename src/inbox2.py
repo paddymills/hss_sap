@@ -161,9 +161,9 @@ def cleanUpInput(input, doNotRemove=[], cleanType=None):
     for f, r in REPLACE:
         input = input.replace(f, r)
 
-    if input == '4501':
+    if input in ('HSO1', '4501'):
         input = 'HS01'
-    elif input == '4502':
+    elif input in ('HSO2', '4502'):
         input = 'HS02'
 
     return input

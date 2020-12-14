@@ -81,6 +81,9 @@ def main():
 
     with open(ready_file, 'w') as cnf_file:
         for part, wbs, qty in confirmations:
+            if part not in templates:
+                continue
+
             line = templates[part]
             in2_per_ea = float(line[index.in2_consumption]) / int(line[index.qty])
 
