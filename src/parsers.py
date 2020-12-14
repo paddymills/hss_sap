@@ -79,7 +79,7 @@ def get_cnf_file_rows(parts, processed_only=False):
         for processed_file in Pool().imap(file_worker, files()):
             pbar.update()
             for line in processed_file:
-                if line[part.matl] in parts:
+                if line[part.matl].upper() in parts:
                     prod_data.append(line)
 
     return prod_data

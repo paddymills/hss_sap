@@ -29,11 +29,15 @@ def main():
             not_cnf[x.matl].append((x.wbs, x.qty))
         else:
             print("Order not matched:", x.order)
-        
+
+    # add keys to cnf that exist in not_cnf
+    # since cnf is a defaultdict, we just need to access the element to add it
+    for key in not_cnf:
+        cnf[key] += 0  
 
     reader = SnReader()
     confirmations = list()
-    for part, qty_confirmed in tqdm(cnf.items(), desc="Comparing confirmations"):
+    for part, qty_confirmed in tqdm(cnf.items(), desc="Comparing COHV"):
         if part not in not_cnf:
             continue
 
@@ -56,7 +60,7 @@ def main():
 
     processed_lines = parsers.get_cnf_file_rows([x[0] for x in confirmations], processed_only=True)
 
-    index = SimpleNamespace(matl=0, qty=4, wbs=2, plant=11)
+    index = SimpleNamespace(matl=0, qty=4, wbs=2, plant=11, in2_consumption=8)
     # matl = SimpleNamespace(matl=6, qty=8, loc=10, wbs=7, plant=11)
 
     templates = dict()
@@ -78,8 +82,11 @@ def main():
     with open(ready_file, 'w') as cnf_file:
         for part, wbs, qty in confirmations:
             line = templates[part]
+            in2_per_ea = float(line[index.in2_consumption]) / int(line[index.qty])
+
             line[index.wbs] = wbs
             line[index.qty] = str(int(qty))
+            line[index.in2_consumption] = str(round(in2_per_ea * int(qty), 3))
 
             cnf_file.write("\t".join(line))
 
