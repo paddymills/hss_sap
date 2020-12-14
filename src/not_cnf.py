@@ -8,6 +8,7 @@ from re import compile as regex
 from collections import defaultdict
 from types import SimpleNamespace
 from datetime import datetime
+from tqdm import tqdm
 
 def main():
     # regexes
@@ -15,12 +16,13 @@ def main():
     NOT_CNF = regex("\d{7}")
 
     # parse active xl sheet
+    print("Parsing spreadsheet")
     cohv = parsers.parse_sheet()
 
     # parse out dict structure
     cnf = defaultdict(int)
     not_cnf = defaultdict(list)
-    for x in cohv:
+    for x in tqdm(list(cohv), desc="Reading orders"):
         if CNF.match(x.order):
             cnf[x.matl] += x.qty
         elif NOT_CNF.match(x.order):
@@ -31,7 +33,10 @@ def main():
 
     reader = SnReader()
     confirmations = list()
-    for part, qty_confirmed in cnf.items():
+    for part, qty_confirmed in tqdm(cnf.items(), desc="Comparing confirmations"):
+        if part not in not_cnf:
+            continue
+
         qty_burned = reader.get_part_burned_qty(part)
 
         if qty_confirmed < qty_burned:
@@ -63,8 +68,12 @@ def main():
     # create output file
     ready_file = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), 
-        "Production_{}.ready".format(datetime.now().strftime("%Y%m%d%H%M%S"))
+        "Production_{:%Y%m%d%H%M%S}.ready".format(datetime.now())
     )
+
+    if not confirmations:
+        print("Nothing to confirm")
+        return
 
     with open(ready_file, 'w') as cnf_file:
         for part, wbs, qty in confirmations:
