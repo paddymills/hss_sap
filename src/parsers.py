@@ -64,7 +64,6 @@ def get_cnf_file_rows(parts, processed_only=False):
     if not processed_only:
         dirs += [
             r"\\hssieng\SNData\SimTrans\SAP Data Files\deleted files",
-            r"\\hssieng\SNData\SimTrans\SAP Data Files\old deleted files",
         ]
 
     def files():

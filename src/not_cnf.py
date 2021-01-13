@@ -58,7 +58,7 @@ def main():
         except KeyError:
             pass
 
-    processed_lines = parsers.get_cnf_file_rows([x[0] for x in confirmations], processed_only=True)
+    processed_lines = parsers.get_cnf_file_rows([x[0] for x in confirmations], processed_only=False)
 
     index = SimpleNamespace(matl=0, qty=4, wbs=2, plant=11, in2_consumption=8)
     # matl = SimpleNamespace(matl=6, qty=8, loc=10, wbs=7, plant=11)
