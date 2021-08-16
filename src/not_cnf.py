@@ -26,7 +26,7 @@ def main():
         if CNF.match(x.order):
             cnf[x.matl] += x.qty
         elif NOT_CNF.match(x.order):
-            not_cnf[x.matl].append((x.wbs, x.qty))
+            not_cnf[x.matl].append((x.wbs, x.qty, x.plant))
         else:
             print("Order not matched:", x.order)
 
@@ -45,12 +45,12 @@ def main():
 
         if qty_confirmed < qty_burned:
             qty_to_confirm = qty_burned - qty_confirmed
-            for wbs, qty in sorted(not_cnf[part]):
+            for wbs, qty, plant in sorted(not_cnf[part]):
                 if qty < qty_to_confirm:
-                    confirmations.append((part, wbs, qty))
+                    confirmations.append((part, wbs, qty, plant))
                     qty_to_confirm -= qty
                 else:  # open quantity is equal or greater than what needs to be confirmed
-                    confirmations.append((part, wbs, qty_to_confirm))
+                    confirmations.append((part, wbs, qty_to_confirm, plant))
                     break
 
         try:
@@ -58,7 +58,7 @@ def main():
         except KeyError:
             pass
 
-    processed_lines = parsers.get_cnf_file_rows([x[0] for x in confirmations], processed_only=False)
+    processed_lines = parsers.get_cnf_file_rows([x[0] for x in confirmations])
 
     index = SimpleNamespace(matl=0, qty=4, wbs=2, plant=11, in2_consumption=8)
     # matl = SimpleNamespace(matl=6, qty=8, loc=10, wbs=7, plant=11)
@@ -80,7 +80,7 @@ def main():
         return
 
     with open(ready_file, 'w') as cnf_file:
-        for part, wbs, qty in confirmations:
+        for part, wbs, qty, plant in confirmations:
             if part not in templates:
                 continue
 
@@ -90,6 +90,7 @@ def main():
             line[index.wbs] = wbs
             line[index.qty] = str(int(qty))
             line[index.in2_consumption] = str(round(in2_per_ea * int(qty), 3))
+            line[index.plant] = plant
 
             cnf_file.write("\t".join(line))
 
