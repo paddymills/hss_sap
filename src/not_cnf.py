@@ -79,20 +79,33 @@ def main():
         print("Nothing to confirm")
         return
 
-    with open(ready_file, 'w') as cnf_file:
-        for part, wbs, qty, plant in confirmations:
-            if part not in templates:
-                continue
+    not_in_templates = list()
+    cnf_data = list()
 
-            line = templates[part]
-            in2_per_ea = float(line[index.in2_consumption]) / int(line[index.qty])
+    
+    for part, wbs, qty, plant in confirmations:
+        if part not in templates:
+            not_in_templates.append(part)
+            continue
 
-            line[index.wbs] = wbs
-            line[index.qty] = str(int(qty))
-            line[index.in2_consumption] = str(round(in2_per_ea * int(qty), 3))
-            line[index.plant] = plant
+        line = templates[part]
+        in2_per_ea = float(line[index.in2_consumption]) / int(line[index.qty])
 
-            cnf_file.write("\t".join(line))
+        line[index.wbs] = wbs
+        line[index.qty] = str(int(qty))
+        line[index.in2_consumption] = str(round(in2_per_ea * int(qty), 3))
+        line[index.plant] = plant
+
+        cnf_data.append("\t".join(line))
+
+    if cnf_data:
+        with open(ready_file, 'w') as cnf_file:
+            for line in cnf_data:
+                cnf_file.write(line)
+
+    if not_in_templates:
+        print("Parts not found in cnf files:")
+        print("\t" + "\n\t".join(not_in_templates))
 
 
 class SnReader:
