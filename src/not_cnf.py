@@ -16,7 +16,7 @@ def main():
     NOT_CNF = regex("\d{7}")
 
     # parse active xl sheet
-    print("Parsing spreadsheet")
+    print("Parsing", xlwings.books.active.name)
     cohv = parsers.parse_sheet()
 
     # parse out dict structure
