@@ -117,21 +117,27 @@ class SnReader:
         self.conn = pyodbc.connect(CS)
 
     def get_part_burned_qty(self, part_name):
+        # blacklist_workorders = ('REMAKES', 'EXTRAS')
+        blacklist_workorders = ('EXTRAS')
+
+        # part_query = part_name.replace("-", "_", 1)
+        part_query = '%' + part_name[4:].replace("-", "%", 1)
+
         cursor = self.conn.cursor()
         cursor.execute("""
             SELECT
                 WONumber, QtyInProcess
             FROM PIPArchive
             WHERE
-                PartName = ?
+                PartName LIKE ?
             AND
                 TransType = 'SN102'
             AND ArcDateTime < ?
-        """, part_name.replace("-", "_", 1), self.simtrans_cutoff)
+        """, part_query, self.simtrans_cutoff)
 
         total = 0
         for wo, qty in cursor.fetchall():
-            if wo not in ('REMAKES', 'EXTRAS'):
+            if wo not in blacklist_workorders:
                 total += qty
 
         return total
