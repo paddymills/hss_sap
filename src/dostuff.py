@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import pyautogui
 import xlwings
 import time
@@ -536,8 +538,14 @@ def findAtLocation(picture, region, original=None):
     if not original:
         original = numpy.array(Image.open(picture))
 
-    current = numpy.array(pyautogui.screenshot(region=region))
+    capture = pyautogui.screenshot(region=region)
+    current = numpy.array(capture)
     if numpy.max(numpy.abs(original - current)) == 0:
+        return pyautogui.center(region)
+
+    org_text = pytesseract.image_to_string(Image.open(picture))
+    cap_text = pytesseract.image_to_string(capture)
+    if org_text == cap_text:
         return pyautogui.center(region)
 
     return None
