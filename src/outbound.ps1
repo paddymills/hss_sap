@@ -1,0 +1,1 @@
+Move-Item Production_*.ready \\hiifileserv1\sigmanestprd\Outbound\

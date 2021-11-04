@@ -264,6 +264,9 @@ def manuallyAddOperationsAndComponents(plant=None):
         else:
             lineNumber = "0444"
 
+        if type(order) in (int, float):
+            order = str(int(order))
+
         progress.update(1)
         loopFunc(findAtLocation, img.CO02.InitialScreenHeader,
                  INITIAL_SCREEN_HEADER)
@@ -283,17 +286,24 @@ def manuallyAddOperationsAndComponents(plant=None):
                   CO02_TABLE_TOP,
                   CO02_ITEM_WIDTH_OPERATIONS,
                   SAP_TABLE_LINE_HEIGHT)
-        if not checkOperationsLine(region) or not pyautogui.pixelMatchesColor(290, 500, ACTIVE_LINE_RGB):
-            for x in (lineNumber, None, "MATLCONS", None, "ZP01", "2034"):
-                if x is not None:
-                    pyautogui.typewrite(x)
-                pyautogui.press("tab")
+
+
+        # if not checkOperationsLine(region) or not pyautogui.pixelMatchesColor(290, 500, ACTIVE_LINE_RGB):
+        for x in (lineNumber, None, "MATLCONS", None, "ZP01", "2034"):
+            if x is not None:
+                pyautogui.typewrite(x)
+            pyautogui.press("tab")
+        
+        
+        # add components
         pyautogui.press("f6")
         while not findAtLocation(img.CO02.ComponentOverviewHeader, COMPONENT_HEADER):
             pyautogui.press("enter")
 
         time.sleep(0.5)
-        pyautogui.press("pagedown")
+        for _ in range(3):
+            pyautogui.press("pagedown")
+            time.sleep(0.25)
         loopFunc(findAtLocation, img.SAP.BlankCell, BLANK_CELL)
 
         # add components
@@ -434,10 +444,16 @@ def runMRP():
     MRP_MAIN_PAGE = (20, 150, 90, 45)
     SUCCESS_COLORS = (300, 145, 100, 95)
 
+    PART_RE = re.compile("^([0-9]{7})[a-zA-Z]-\w+")
     PROJECT_RE = re.compile("^[a-zA-Z]-[0-9]{7}$")
     WBS_RE = re.compile("^[a-zA-Z]-[0-9]{7}-[0-9]{5}$")
 
     mrp_items = read_sort_min_file("mrp.txt")
+    for i in range(0, len(mrp_items)):
+        if PART_RE.match(mrp_items[i]):
+            mrp_items[i] = "D-{}".format(PART_RE.match(mrp_items[i]).group(1))
+        
+    mrp_items = sorted(set(mrp_items))
 
     with tqdm.tqdm(mrp_items) as progress:
         for project_or_wbs in progress:
@@ -448,6 +464,7 @@ def runMRP():
             elif WBS_RE.match(project_or_wbs):
                 pyautogui.click(*WBS)
             else:
+                print("unparsed project/wbs:", project_or_wbs)
                 continue
 
             pyautogui.typewrite(project_or_wbs)
