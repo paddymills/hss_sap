@@ -404,9 +404,25 @@ def helpUnConfirmPart():
                  CONF_TEXT_SCREEN_HEADER)
         pyautogui.press('escape')
 
+    def cancel_conf2(order):
+        loopFunc(findAtLocation, img.CO13.InitialScreenHeader,
+                 INITIAL_SCREEN_HEADER)
+        pyautogui.click(*INITIAL_SCREEN_ORDER)
+        pyautogui.typewrite(order)
+        pyautogui.press("enter")
+        progress.write(f"Unconfirming {order}")
+        time.sleep(1.0)
+        pyautogui.press("enter")
+
+        time.sleep(1.0)
+        pyautogui.typewrite(TODAY)
+        pyautogui.hotkey('ctrl', 's')
+        time.sleep(1.0)
+        pyautogui.press('escape')
+
     with tqdm.tqdm(orders) as progress:
         for order in progress:
-            cancel_conf(order)
+            cancel_conf2(order)
 
 
 # arg: "delete"
