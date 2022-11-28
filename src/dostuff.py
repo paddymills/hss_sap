@@ -18,7 +18,8 @@ import numpy
 
 import screenshots
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract"
+# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract"
+pytesseract.pytesseract.tesseract_cmd = "tesseract"
 img = screenshots.getScreenShotCollection()
 
 ITEM_REGEX = re.compile("^[0-9]{4}$")
@@ -28,9 +29,9 @@ ACTIVE_LINE_RGB = (255, 255, 255)
 DISABLED_LINE_RGB = (223, 235, 245)
 
 SAP_TABLE_LINE_HEIGHT = 21
-CO02_TABLE_LEFT = 35
-CO02_TABLE_TOP = 282
-CO02_TABLE_BOTTOM = 891
+CO02_TABLE_LEFT = 26
+CO02_TABLE_TOP = 275
+CO02_TABLE_BOTTOM = 915
 
 CO02_ITEM_WIDTH_OPERATIONS = 563
 CO02_ITEM_WIDTH_COMPONENTS = 150
@@ -81,10 +82,9 @@ def checkWinShuttleOrManual():
     for i in range(CO02_TABLE_TOP, CO02_TABLE_BOTTOM, SAP_TABLE_LINE_HEIGHT):
         CAPTURE_REGIONS.append(region(i))
 
-    INITIAL_SCREEN_HEADER = (25, 80, 350, 25)
-    INITIAL_SCREEN_ORDER = (168, 204)
-    OPERATIONS_HEADER = (75, 82, 405, 20)
-    BACK_BUTTON = (282, 45, 15, 15)
+    INITIAL_SCREEN_HEADER = (20, 75, 350, 25)
+    INITIAL_SCREEN_ORDER = (156, 195)
+    OPERATIONS_HEADER = (68, 78, 405, 20)
 
     orders = read_sort_min_file("orders.txt")
 
@@ -126,12 +126,11 @@ def helpRemoveLines():
             q.put(region(i))
         return q
 
-    INITIAL_SCREEN_HEADER = (25, 80, 350, 25)
-    INITIAL_SCREEN_ORDER = (168, 204)
-    OPERATIONS_HEADER = (75, 82, 405, 20)
-    BACK_BUTTON = (282, 45, 15, 15)
+    INITIAL_SCREEN_HEADER = (20, 75, 350, 25)
+    INITIAL_SCREEN_ORDER = (156, 195)
+    OPERATIONS_HEADER = (68, 78, 405, 20)
     CONFIRM_YES = (442, 288, 153, 26)
-    CALC_COSTS = (234, 447, 71, 16)
+    CALC_COSTS = (220, 435, 85, 25)
 
     AVAILABLE_PROCESSES = os.cpu_count()
 
@@ -148,7 +147,7 @@ def helpRemoveLines():
         loopFunc(findAtLocation, img.CO02.OperationOverviewHeader,
                  OPERATIONS_HEADER)
         # move cursor out of A1 box (otherwise can cause Tesseract misread)
-        pyautogui.click(x=120, y=160)
+        pyautogui.click(x=360, y=280)
 
         taskQueue = getCaptureRegions()
         doneQueue = Queue()
@@ -183,14 +182,14 @@ def helpRemoveLines():
                     except queue.Empty:
                         pass
                 # check if line is active
-                elif pyautogui.pixelMatchesColor(CO02_TABLE_LEFT+15, y+10, ACTIVE_LINE_RGB):
+                elif pyautogui.pixelMatchesColor(CO02_TABLE_LEFT+370, y+10, ACTIVE_LINE_RGB):
                     if "MATLCONS" in items:
-                        pyautogui.click(x=CO02_TABLE_LEFT-10, y=y)
+                        pyautogui.click(x=CO02_TABLE_LEFT-10, y=y+10)
                         lineSelectClicks += 1
 
         # delete selected lines
         if lineSelectClicks > 0:
-            pyautogui.click(x=124, y=995)  # delete button
+            pyautogui.click(x=115, y=990)  # delete button
             loopFunc(findAtLocation, img.CO02.ConfirmYes, CONFIRM_YES)
             pyautogui.click(pyautogui.center(CONFIRM_YES))
             time.sleep(0.5)
@@ -223,11 +222,10 @@ def manuallyAddOperationsAndComponents(plant=None):
     for i in range(CO02_TABLE_TOP, CO02_TABLE_BOTTOM, SAP_TABLE_LINE_HEIGHT):
         CAPTURE_REGIONS.append(region(i))
 
-    INITIAL_SCREEN_HEADER = (25, 80, 350, 25)
-    INITIAL_SCREEN_ORDER = (168, 204)
-    OPERATION_HEADER = (75, 82, 405, 20)
+    INITIAL_SCREEN_HEADER = (20, 75, 350, 25)
+    INITIAL_SCREEN_ORDER = (156, 195)
+    OPERATION_HEADER = (68, 78, 405, 20)
     COMPONENT_HEADER = (75, 83, 420, 22)
-    BACK_BUTTON = (282, 45, 15, 15)
     BLANK_CELL = (71, 306, 120, 8)
     ERROR_CALC = (235, 448, 71, 14)
 
@@ -612,7 +610,9 @@ def iterateTable(**kwargs):
     tableBottom = kwargs["tableHeight"]
     rowHeight = kwargs["rowHeight"]
 
-    def region(x): return (tableLeft, x, tableWidth, rowHeight)
+    def region(x):
+        return (tableLeft, x, tableWidth, rowHeight)
+
     for i in range(tableTop, tableBottom, rowHeight):
         capture = pyautogui.screenshot(region=region(i))
         yield (i, pytesseract.image_to_string(capture))
