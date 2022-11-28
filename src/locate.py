@@ -1,6 +1,7 @@
 import pyautogui
 import time
 
+import dostuff
 
 def findCoord():
     DELAY = 0.25
@@ -31,9 +32,14 @@ def takePictureCoordAndSize(x1, y1, wid, height, name="image.PNG"):
 
 
 if __name__ == '__main__':
-    findCoord()
+    # findCoord()
 
-    time.sleep(5)
+    # time.sleep(5)
     # takePictureTwoCoord(20, 150, 110, 195)
-    takePictureCoordAndSize(25, 80, 350, 25)
+    # takePictureCoordAndSize(25, 80, 350, 25)
+    
+    loc = (220, 435, 85, 25)
+    name = "MBST_SelectionScreen"
+    # takePictureCoordAndSize(*loc, name="screenshots\\{}.PNG".format(name))
+    takePictureTwoCoord(15,75, 350,95, name="screenshots\\{}.PNG".format(name))
     print('done')
