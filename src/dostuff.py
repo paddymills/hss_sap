@@ -128,7 +128,7 @@ def helpRemoveLines():
 
     INITIAL_SCREEN_HEADER = (20, 75, 350, 25)
     INITIAL_SCREEN_ORDER = (156, 195)
-    OPERATIONS_HEADER = (68, 78, 405, 20)
+    OPERATIONS_HEADER = (68, 74, 356, 19)
     CONFIRM_YES = (442, 288, 153, 26)
     CALC_COSTS = (220, 435, 85, 25)
 
@@ -208,13 +208,13 @@ def helpRemoveLines():
 # arg: "manual"
 # arg: "add"
 def manuallyAddOperationsAndComponents(plant=None):
-    if plant is None:
-        plant = input("Plant: ")
+    # if plant is None:
+    #     plant = input("Plant: ")
 
-    if plant in ('1', '2', '4'):
-        plant = 'HS01'
-    elif plant == '3':
-        plant = 'HS02'
+    # if plant in ('1', '2', '4'):
+    #     plant = 'HS01'
+    # elif plant == '3':
+    #     plant = 'HS02'
 
     CAPTURE_REGIONS = list()
     def region(x): return (CO02_TABLE_LEFT, x,
@@ -224,10 +224,10 @@ def manuallyAddOperationsAndComponents(plant=None):
 
     INITIAL_SCREEN_HEADER = (20, 75, 350, 25)
     INITIAL_SCREEN_ORDER = (156, 195)
-    OPERATION_HEADER = (68, 78, 405, 20)
-    COMPONENT_HEADER = (75, 83, 420, 22)
+    OPERATION_HEADER = (68, 74, 356, 19)
+    COMPONENT_HEADER = (68, 74, 356, 19)
     BLANK_CELL = (71, 306, 120, 8)
-    ERROR_CALC = (235, 448, 71, 14)
+    ERROR_CALC = (219, 435, 84, 25)
 
     WINSHUTTLE_SUCCESS_REGEX = re.compile("^Order number [0-9]{10} saved$")
 
@@ -277,7 +277,7 @@ def manuallyAddOperationsAndComponents(plant=None):
         pyautogui.press("pagedown")
         while not pyautogui.pixelMatchesColor(83, 313, ACTIVE_LINE_RGB):
             pass
-        pyautogui.click(x=38, y=314)
+        pyautogui.click(x=28, y=300)
 
         # add Operation
         region = (CO02_TABLE_LEFT,
@@ -288,7 +288,7 @@ def manuallyAddOperationsAndComponents(plant=None):
 
         # if not checkOperationsLine(region) or not pyautogui.pixelMatchesColor(290, 500, ACTIVE_LINE_RGB):
         for x in (lineNumber, None, "MATLCONS", None, "ZP01", "2034"):
-            if x is not None:
+            if x:
                 pyautogui.typewrite(x)
             pyautogui.press("tab")
         
@@ -306,11 +306,16 @@ def manuallyAddOperationsAndComponents(plant=None):
 
         # add components
         for i, partandqty in enumerate(parts):
-            pyautogui.click(x=71, y=i*SAP_TABLE_LINE_HEIGHT+314)
-            for x in (*partandqty, "EA", "L", lineNumber, "0", plant, "PROD"):
-                pyautogui.typewrite(x)
+            pyautogui.click(x=60, y=i*SAP_TABLE_LINE_HEIGHT+300)
+            for x in (*partandqty, "EA", "L", lineNumber, "0", None, "PROD"):
+                if x:
+                    pyautogui.typewrite(x)
                 pyautogui.press("tab")
+
+        pyautogui.press("enter")
+        time.sleep(0.25)
         pyautogui.hotkey("ctrl", "s")
+
         while 1:
             if findAtLocation(img.CO02.InitialScreenHeader, INITIAL_SCREEN_HEADER):
                 break
