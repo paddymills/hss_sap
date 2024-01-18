@@ -1,13 +1,11 @@
 
 import pyodbc
 import pandas
-
-from tqdm import tqdm
-from collections import defaultdict
+import os
 
 CS = "DRIVER={SQL Server};SERVER=HIIWINBL18;DATABASE=SNDBase91;UID=SNUser;PWD=BestNest1445"
 
-EXPORT = r"C:\Users\PMiller1\Documents\SAP\SAP GUI\export.XLSX"
+EXPORT = os.path.join(os.environ['USERPROFILE'], r"Documents\SAP\SAP GUI\export.XLSX")
 # EXPORT = "/c/Users/PMiller1/Documents/SAP/SAP GUI/export.XLSX"
 
 XL_HEADER = {
